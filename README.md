@@ -1,5 +1,5 @@
 # cncjs-pendant-rs
-Rotary pendant pendant for cncjs.  
+Rotary pendant pendant for cncjs.  The pendant project is located here https://github.com/se2labs/grbl-pendant-rs  It's a raspberrypi pico with an encoder.
 Installation
 cd to project folder and npm install
 
