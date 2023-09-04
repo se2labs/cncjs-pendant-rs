@@ -8,3 +8,6 @@ Usage
 Run bin/cncjs-pendant-rs to start the interactive client. Pass --help to cncjs-pendant-boilerplate for more options.
 
 bin/cncjs-pendant-rs --help
+
+Install and run video:
+https://youtu.be/MAQY589YFz8
