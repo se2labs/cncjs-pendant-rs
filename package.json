@@ -1,0 +1,42 @@
+{
+  "name": "cncjs-pendant-rs",
+  "version": "0.1.0",
+  "description": "A rotary pendant with speed and axis select using a rpi pico",
+  "main": "./index.js",
+  "engines": {
+    "node": ">=4"
+  },
+  "bin": {
+    "cncjs-pendant-rs": "./bin/cncjs-pendant-rs"
+  },
+  "preferGlobal": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cncjs/cncjs-pendant-rs.git"
+  },
+  "keywords": [
+    "cncjs",
+    "pendant",
+    "boilerplate"
+  ],
+  "author": "Mark Schwab schwabelectronic@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cncjs/cncjs-pendant-rs/issues"
+  },
+  "homepage": "https://github.com/cncjs/cncjs-pendant-rs#readme",
+  "dependencies": {
+    "commander": "^5.0.0-4",
+    "inquirer": "^7.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "mqtt": "^4.3.7",
+    "node-hid": "^2.1.2",
+    "serialport": "^8.0.7",
+    "socket.io-client": "^2.3.0",
+    "vorpal": "^1.12.0"
+  }
+}

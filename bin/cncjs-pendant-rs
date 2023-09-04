@@ -1,0 +1,152 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var path = require('path');
+var program = require('commander');
+var serialport = require('serialport');
+var inquirer = require('inquirer');
+var vorpal = require('vorpal')();
+var pkg = require('../package.json');
+var serverMain = require('../index');
+var commands = require('../commands');
+var options = {};
+var controller=require('../controller')
+var numberToAxis={0:'X',1:'Y',2:'Z'};
+var rateLimit=1000/5;
+sendJog.last=0;
+sendJog.previousjogValue=0;
+function logdata(data){
+	console.log('new data '+data);
+}
+function sendJog(payload){
+	var axis=numberToAxis[payload.axis];
+	var jogValue=payload.value+sendJog.previousjogValue;
+	var speed=Math.abs(jogValue/(1/5))*60;
+	sendJog.previousJogValue=jogValue;
+	const now=+new Date();
+	if(now-sendJog.last > rateLimit){
+		sendJog.last=now;
+		sendJog.previousJogValue=0;
+		jogCommand=`$J=G91 ${axis}${jogValue} F${speed}`;
+		socket.emit("write",options.port,jogCommand);
+	}
+}
+	
+console.log('checkcontrolller return '+controller.checkController());
+function connectRPI(){
+console.log('connectrpi()');
+if(controller.checkController()){
+	console.log('Found controller');
+	controller.connectPendant();
+	controller.events.on('newdata', sendJog);
+}
+else{
+	console.log('Cannot find pendant');
+	process.exit();
+}
+}
+program
+	.version(pkg.version)
+	.usage('-s <secret> -p <port> [options]')
+	.option('-l, --list', 'list available ports then exit')
+    .option('-s, --secret', 'the secret key stored in the ~/.cncrc file')
+	.option('-p, --port <port>', 'path or name of serial port')
+	.option('-b, --baudrate <baudrate>', 'baud rate (default: 115200)', 115200)
+	.option('--socket-address <address>', 'socket address or hostname (default: localhost)', 'localhost')
+	.option('--socket-port <port>', 'socket port (default: 8000)', 8000)
+	.option('--controller-type <type>', 'controller type: Grbl|Smoothie|TinyG (default: Grbl)', 'Grbl')
+    .option('--access-token-lifetime <lifetime>', 'access token lifetime in seconds or a time span string (default: 30d)', '30d')
+
+program.parse(process.argv);
+
+var options = {
+    secret: program.secret,
+    port: program.port,
+    baudrate: program.baudrate,
+    socketAddress: program.socketAddress,
+    socketPort: program.socketPort,
+    controllerType: program.controllerType,
+    accessTokenLifetime: program.accessTokenLifetime
+};
+
+if (options.list) {
+	serialport.list().then(function(ports) {
+		ports.forEach(function(port) {
+			console.log(port.path);
+		});
+	}).catch((err) => {
+        console.error(err)
+        process.exit(1)
+    })
+	return;
+}
+
+var store = {
+    controller: {
+        state: {},
+        settings: {}
+    },
+    sender: {
+        status: {}
+    }
+};
+
+var createServer = function(options) {
+	connectRPI();
+    serverMain(options, function(err, socket) {
+	
+        // Grbl
+        socket.on('Grbl:state', function(state) {
+            store.controller.state = state;
+        });
+        socket.on('Grbl:settings', function(settings) {
+            store.controller.settings = settings;
+        });
+
+        // Smoothie
+        socket.on('Smoothie:state', function(state) {
+            store.controller.state = state;
+        });
+        socket.on('Smoothie:settings', function(settings) {
+            store.controller.settings = settings;
+        });
+
+        // TinyG
+        socket.on('TinyG:state', function(state) {
+            store.controller.state = state;
+        });
+        socket.on('TinyG:settings', function(settings) {
+            store.controller.settings = settings;
+        });
+
+        // Sender
+        socket.on('sender:status', function(data) {
+            store.sender.status = data;
+        });
+
+    });
+};
+
+if (options.port) {
+    createServer(options);
+    return;
+}
+serialport.list().then(function (ports) {
+    const choices = ports.map(function(port) {
+        return port.path;
+    });
+
+    inquirer.prompt([{
+        type: 'list',
+        name: 'port',
+        message: 'Specify which port you want to use?',
+        choices: choices
+    }]).then(function(answers) {
+        options.port = answers.port;
+
+        createServer(options);
+    });
+}).catch((err) => {
+    console.error(err)
+    process.exit(1)
+})
