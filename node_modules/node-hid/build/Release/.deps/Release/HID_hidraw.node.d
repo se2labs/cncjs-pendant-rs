@@ -1,0 +1,1 @@
+cmd_Release/HID_hidraw.node := ln -f "Release/obj.target/HID_hidraw.node" "Release/HID_hidraw.node" 2>/dev/null || (rm -rf "Release/HID_hidraw.node" && cp -af "Release/obj.target/HID_hidraw.node" "Release/HID_hidraw.node")

@@ -8,3 +8,5 @@ Usage
 Run bin/cncjs-pendant-rs to start the interactive client. Pass --help to cncjs-pendant-boilerplate for more options.
 
 bin/cncjs-pendant-rs --help
+
+need to chmod +rw /dev/hidraw

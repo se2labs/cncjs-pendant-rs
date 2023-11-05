@@ -24,10 +24,11 @@ function sendJog(payload){
 	var speed=Math.abs(jogValue/(1/5))*60;
 	sendJog.previousJogValue=jogValue;
 	const now=+new Date();
-	if(now-sendJog.last > rateLimit){
+	if(now-sendJog.last > rateLimit && speed>0){
 		sendJog.last=now;
 		sendJog.previousJogValue=0;
-		jogCommand=`$J=G91 ${axis}${jogValue} F${speed}`;
+		jogCommand=`$J=G91 ${axis}${jogValue} F${speed}\n`;
+		console.log(jogCommand)
 		socket.emit("write",options.port,jogCommand);
 	}
 }
