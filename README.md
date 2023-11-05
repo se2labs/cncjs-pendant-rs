@@ -10,3 +10,5 @@ Run bin/cncjs-pendant-rs to start the interactive client. Pass --help to cncjs-p
 bin/cncjs-pendant-rs --help
 
 need to chmod +rw /dev/hidraw
+Install and run video:
+https://youtu.be/MAQY589YFz8
